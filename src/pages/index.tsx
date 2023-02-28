@@ -1,169 +1,17 @@
 import styles from "@/styles/Home.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { animate, motion, useMotionValue, useWillChange } from "framer-motion";
+import { Collection, getCollection, getCollections } from "@/apis/collection";
+import { Item } from "@/apis/item";
+import useAuth from "@/hooks/useAuth";
 
-interface Pokemon {
-  id: string;
-  name: string;
-  dropPercent: number;
-  rarity: string;
-  image: string;
-}
-
-const pokemon: Pokemon[] = [
-  {
-    id: "1",
-    name: "Bulbasaur",
-    dropPercent: 79.92,
-    rarity: "rare",
-    image:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png",
-  },
-  {
-    id: "2",
-    name: "Ivysaur",
-    dropPercent: 79.92,
-    rarity: "rare",
-    image:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/2.png",
-  },
-  {
-    id: "3",
-    name: "Venusaur",
-    dropPercent: 79.92,
-    rarity: "rare",
-    image:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/3.png",
-  },
-  {
-    id: "4",
-    name: "Charmander",
-    dropPercent: 79.92,
-    rarity: "rare",
-    image:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png",
-  },
-  {
-    id: "5",
-    name: "Zigzagoon Galar",
-    dropPercent: 79.92,
-    rarity: "rare",
-    image:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10174.png",
-  },
-  {
-    id: "6",
-    name: "Linoone Galar",
-    dropPercent: 79.92,
-    rarity: "rare",
-    image:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10175.png",
-  },
-  {
-    id: "7",
-    name: "Raikou",
-    dropPercent: 79.92,
-    rarity: "rare",
-    image:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/243.png",
-  },
-  {
-    id: "8",
-    name: "Entei",
-    dropPercent: 15.98,
-    rarity: "mythical",
-    image:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/244.png",
-  },
-  {
-    id: "9",
-    name: "Larvitar",
-    dropPercent: 15.98,
-    rarity: "mythical",
-    image:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/246.png",
-  },
-  {
-    id: "10",
-    name: "Pupitar",
-    dropPercent: 15.98,
-    rarity: "mythical",
-    image:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/247.png",
-  },
-  {
-    id: "11",
-    name: "Tiranitar",
-    dropPercent: 15.98,
-    rarity: "mythical",
-    image:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/248.png",
-  },
-  {
-    id: "12",
-    name: "Lugia",
-    dropPercent: 15.98,
-    rarity: "mythical",
-    image:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/249.png",
-  },
-  {
-    id: "13",
-    name: "Salandit",
-    dropPercent: 3.2,
-    rarity: "legendary",
-    image:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/757.png",
-  },
-  {
-    id: "14",
-    name: "Salazzle",
-    dropPercent: 3.2,
-    rarity: "legendary",
-    image:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/758.png",
-  },
-  {
-    id: "15",
-    name: "Iron Valiant",
-    dropPercent: 3.2,
-    rarity: "legendary",
-    image:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1006.png",
-  },
-  {
-    id: "16",
-    name: "Joltik",
-    dropPercent: 0.64,
-    rarity: "ancient",
-    image:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/595.png",
-  },
-  {
-    id: "17",
-    name: "Maschiff",
-    dropPercent: 0.64,
-    rarity: "ancient",
-    image:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/942.png",
-  },
-  {
-    id: "18",
-    name: "Mabossiff",
-    dropPercent: 0.26,
-    rarity: "spiritual",
-    image:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/943.png",
-  },
-];
-
-const drop = (items: Pokemon[]) => {
+const drop = (items: Item[]) => {
   let chances = [];
 
-  const sum = items.reduce((prev, curr) => prev + curr.dropPercent, 0);
+  const sum = items.reduce((prev, curr) => prev + curr.chance, 0);
 
   let acc = 0;
-  chances = items.map(({ dropPercent }) => (acc = dropPercent + acc));
+  chances = items.map(({ chance }) => (acc = chance + acc));
 
   const rand = Math.random() * sum;
 
@@ -171,7 +19,17 @@ const drop = (items: Pokemon[]) => {
 
   const result = items.find((_, index) => index === itemIndex);
 
-  return result;
+  return result!;
+};
+
+const generateSpinItems = (items: Item[]): Item[] => {
+  let spinItems: Item[] = [];
+
+  while (spinItems.length < 80) {
+    spinItems.push(...items);
+  }
+
+  return shuffle(spinItems);
 };
 
 function random(min: number, max: number) {
@@ -189,86 +47,167 @@ function shuffle(array: any[]) {
   return arr;
 }
 
-export default function Home() {
+const Home = () => {
+  const [collections, setCollections] = useState<Collection[]>();
+
+  const [fetching, setFetching] = useState(false);
+  const [items, setItems] = useState<Record<string, Item[]>>();
+  const [selectedItems, setSelectedItems] = useState<Item[]>([]);
+  const [selectedCollection, setSelectedCollection] = useState<Collection>();
+
+  const onClickCollection = async (collection: Collection) => {
+    if (items?.[collection.id]) {
+      setSelectedItems(items[collection.id]);
+      setSelectedCollection(collection);
+      return;
+    }
+
+    setFetching(true);
+    const { data } = await getCollection(collection.id);
+    const collectionItems = data?.items;
+
+    if (collectionItems) {
+      setSelectedItems(data.items);
+      setSelectedCollection(collection);
+      setItems((prev) => ({ ...prev, [collection.id]: data.items }));
+    }
+
+    setFetching(false);
+  };
+
+  useEffect(() => {
+    const fetchCollections = async () => {
+      const { data } = await getCollections();
+      setCollections(data.data || []);
+    };
+
+    fetchCollections();
+  }, []);
+
+  return (
+    <div>
+      <div className={styles.collections}>
+        {collections?.map((collection) => (
+          <div
+            className={styles.collectionItem}
+            style={{ opacity: fetching ? 0.25 : 1 }}
+            onClick={() => onClickCollection(collection)}
+          >
+            <div className={styles.collectionImage}>
+              <img src={collection.image} alt={collection.displayName} />
+            </div>
+            <div className={styles.collectionName}>
+              {collection.displayName} - ${collection.cost}
+            </div>
+          </div>
+        ))}
+      </div>
+      <Items collection={selectedCollection} items={selectedItems} />
+    </div>
+  );
+};
+
+interface ItemsProps {
+  collection: Collection;
+  items: Item[];
+}
+
+function Items({ collection, items = [] }: ItemsProps) {
   const x = useMotionValue(0);
   const willChange = useWillChange();
-  const [selectedPokemon, setSelectedPokemon] = useState<Pokemon>();
-  const [spinItems, setSpinItems] = useState<Pokemon[]>([]);
+
+  const [selectedPokemon, setSelectedPokemon] = useState<Item>();
+  const [spinItems, setSpinItems] = useState<Item[]>([]);
   const [spinning, setSpinning] = useState(false);
 
-  const onClick = () => {
-    if (spinning) return;
+  const { user } = useAuth();
+  const [error, setError] = useState("");
 
-    setSpinning(true);
+  const onClickOpen = () => {
+    if (spinning || !items?.length) return;
 
-    const selected = drop(pokemon);
+    if (!user) {
+      setError("You need to login first!");
+      return;
+    }
 
-    const shuffleItems = shuffle([
-      ...pokemon,
-      ...pokemon,
-      ...pokemon,
-      ...pokemon,
-      ...pokemon,
-    ]);
+    if (user?.coin < collection?.cost) {
+      setError("You don't have enough coins to buy!");
+      return;
+    }
 
-    shuffleItems[83] = selected;
+    try {
+      setSelectedPokemon(null);
+      setSpinning(true);
 
-    setSpinItems(shuffleItems);
+      const selected = drop(items);
 
-    animate(x, random(-14980, -15140), {
-      ease: [0.2, 0, 0.6, 1],
-      duration: 2,
-      onComplete: () => {
-        setTimeout(() => {
-          setSelectedPokemon(selected);
-          setSpinning(false);
-          x.set(0);
-        }, 8500);
-      },
-    });
+      const shuffleItems = generateSpinItems(items);
+
+      const selectedIndex = 70;
+      shuffleItems[selectedIndex] = selected;
+
+      setSpinItems(shuffleItems);
+
+      animate(x, random(-11990, -12130), {
+        ease: [0.2, 0, 0.6, 1],
+        duration: 1.2,
+        onComplete: () => {
+          setTimeout(() => {
+            x.set(0);
+            setSelectedPokemon(selected);
+            setSpinning(false);
+          }, 8500);
+        },
+      });
+    } catch (error) {}
   };
 
   return (
     <div className={styles.container}>
-      {pokemon.map((pokemon, index) => (
-        <div key={pokemon.id} className={styles.pokemon}>
+      <div style={{ marginBottom: 8 }}>
+        <button onClick={onClickOpen} style={{ opacity: spinning ? 0 : 1 }}>
+          Open
+        </button>
+        {error && <div style={{ color: "var(--mythical)" }}>{error}</div>}
+        {selectedPokemon && <div>You get: {selectedPokemon.name}</div>}
+      </div>
+      {items.map((item, index) => (
+        <div key={item.id} className={styles.pokemon}>
           <div className={styles.image}>
-            <img src={pokemon.image} width="180px" height="150px" />
+            <img src={item.image} width="110px" height="100px" />
           </div>
           <div
-            className={`${styles.text} ${
-              styles[pokemon.rarity] || styles.default
-            }`}
+            className={`${styles.text} ${styles[item.class] || styles.default}`}
           >
-            {pokemon.name} {index}
+            {item.displayName} {index}
           </div>
         </div>
       ))}
       <div className={styles.list}>
-        <div
-          className={styles.holder}
-          style={{ display: spinning ? "block" : "none" }}
-        >
-          <motion.div style={{ x, willChange }} className={styles.roller}>
-            {spinItems.map((pokemon, index) => (
-              <div key={pokemon.id} className={styles.pokemon}>
-                <div className={styles.image}>
-                  <img src={pokemon.image} width="180px" height="150px" />
+        {spinning && (
+          <div className={styles.holder}>
+            <motion.div style={{ x, willChange }} className={styles.roller}>
+              {spinItems.map((item, index) => (
+                <div key={item.id} className={styles.pokemon}>
+                  <div className={styles.image}>
+                    <img src={item.image} width="180px" height="150px" />
+                  </div>
+                  <div
+                    className={`${styles.text} ${
+                      styles[item.class] || styles.default
+                    }`}
+                  >
+                    {item.displayName} {index}
+                  </div>
                 </div>
-                <div
-                  className={`${styles.text} ${
-                    styles[pokemon.rarity] || styles.default
-                  }`}
-                >
-                  {pokemon.name} {index}
-                </div>
-              </div>
-            ))}
-          </motion.div>
-        </div>
+              ))}
+            </motion.div>
+          </div>
+        )}
       </div>
-      <button onClick={onClick}>Open</button>
-      <div>You get: {selectedPokemon?.name}</div>
     </div>
   );
 }
+
+export default Home;

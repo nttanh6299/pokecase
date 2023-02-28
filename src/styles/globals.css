@@ -5,11 +5,12 @@
 }
 
 :root {
-  --rare: #4a69ff;
-  --mythical: #8845ff;
-  --legendary: #b22ec2;
-  --ancient: #eb4b4b;
-  --spiritual: #caab04;
+  --common: #4A69FF;
+  --rare: #8946FE;
+  --extraordinary: #B22EC2;
+  --legendary: #DEE444;
+  --mythical: #EB4B4B;
+  --mega: #FF981D;
 }
 
 body {

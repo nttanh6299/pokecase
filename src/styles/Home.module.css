@@ -1,7 +1,38 @@
+.collections {
+  display: flex;
+  width: 100%;
+  max-width: 1260px;
+  margin: 16px auto 0;
+}
+
+.collectionItem {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #000;
+  cursor: pointer;
+}
+
+.collectionImage {
+  width: 120px;
+  height: 120px;
+}
+
+.collectionImage > img {
+  width: 100%;
+  max-height: 100%;
+  display: inline-block;
+}
+
+.collectionName {
+  background: #333;
+  color: #fff;
+  padding: 4px;
+}
+
 .container {
   width: 100%;
   max-width: 1260px;
-  margin: 0 auto;
+  margin: 8px auto;
 }
 
 .list {
@@ -29,19 +60,15 @@
   position: absolute;
   border: none;
   z-index: 10;
-  width: 5px;
+  width: 4px;
   height: 100%;
   left: 50%;
-  background: #d16266;
+  background: var(--mythical);
 }
 
 .pokemon {
   display: inline-block;
   background-color: #eef;
-}
-
-.pokemon + .pokemon {
-  margin-left: 8px;
 }
 
 .image {
@@ -61,8 +88,16 @@
   color: #fff;
 }
 
+.common {
+  background-color: var(--common);
+}
+
 .rare {
   background-color: var(--rare);
+}
+
+.extraordinary {
+  background-color: var(--extraordinary);
 }
 
 .mythical {
@@ -73,12 +108,8 @@
   background-color: var(--legendary);
 }
 
-.ancient {
-  background-color: var(--ancient);
-}
-
-.spiritual {
-  background-color: var(--spiritual);
+.mega {
+  background-color: var(--mega);
 }
 
 .default {
