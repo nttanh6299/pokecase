@@ -7,12 +7,13 @@ export interface Collection {
   displayName: string;
   image: string;
   cost: number;
-  quantity: number
+  quantity: number;
 }
 
 export interface OpenCollection {
   dropped: Item;
   sellId: string;
+  xp: number;
 }
 
 export interface CollectionDetail extends Collection {

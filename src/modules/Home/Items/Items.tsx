@@ -130,9 +130,10 @@ function Items({
     try {
       setRequestOpen(true);
       const { data } = await openCollection(collection.id);
-      const { dropped, sellId } = data ?? {};
+      const { dropped, sellId, xp } = data ?? {};
 
       if (dropped) {
+        setUser((prev) => ({ ...prev, xp: prev.xp + xp }));
         updateQuantityCollection(-1);
         sellIdRef.current = sellId;
       }
