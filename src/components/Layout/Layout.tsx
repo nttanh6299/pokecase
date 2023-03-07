@@ -1,18 +1,33 @@
 import { PropsWithChildren, useCallback, useEffect } from "react";
-import { clearAccessToken, setAccessToken } from "@/utils";
+import { clearAccessToken, getAccessToken, setAccessToken } from "@/utils";
 import useAuth from "@/hooks/useAuth";
 import { getMe } from "@/apis/auth";
 import { signIn, signOut, useSession } from "next-auth/react";
 import useIsomorphicLayoutEffect from "@/hooks/useIsomorphicLayoutEffect";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 const Layout = ({ children }: PropsWithChildren<unknown>) => {
-  const { user, clearUser, setUser } = useAuth();
+  const router = useRouter();
+  const { user, clearUser, setUser, setIsFetchingUser } = useAuth();
   const { data: session, status } = useSession();
 
   const getUser = useCallback(async () => {
-    const { data } = await getMe();
-    if (data) {
-      setUser(data);
+    if (!getAccessToken()) {
+      setIsFetchingUser(false);
+      return;
+    }
+
+    try {
+      setIsFetchingUser(true);
+      const { data } = await getMe();
+      if (data) {
+        setUser(data);
+      }
+    } catch (error) {
+      console.error("Fetching user error", error);
+    } finally {
+      setIsFetchingUser(false);
     }
   }, []);
 
@@ -36,6 +51,7 @@ const Layout = ({ children }: PropsWithChildren<unknown>) => {
   const logout = () => {
     clearAccessToken();
     clearUser();
+    router.push("/");
   };
 
   return (
@@ -47,6 +63,11 @@ const Layout = ({ children }: PropsWithChildren<unknown>) => {
             <div>{user?.name}</div>
             <div>${user?.coin}</div>
             <div>Xp: {user?.xp}</div>
+            <div>
+              <Link href="/inventory" prefetch>
+                Inventory
+              </Link>
+            </div>
             <button onClick={logout}>Logout</button>
           </div>
         )}
