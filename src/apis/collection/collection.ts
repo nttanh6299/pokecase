@@ -7,6 +7,12 @@ export interface Collection {
   displayName: string;
   image: string;
   cost: number;
+  quantity: number
+}
+
+export interface OpenCollection {
+  dropped: Item;
+  sellId: string;
 }
 
 export interface CollectionDetail extends Collection {
@@ -19,4 +25,17 @@ export const getCollections = async () => {
 
 export const getCollection = (collectionId: string) => {
   return fetchApi<CollectionDetail>("/collections/" + collectionId, "GET");
+};
+
+export const openCollection = (collectionId: string) => {
+  return fetchApi<OpenCollection>("/collections/open", "POST", {
+    collectionId,
+  });
+};
+
+export const buyCollection = (collectionId: string, quantity) => {
+  return fetchApi<number>("/collections/buy", "POST", {
+    collectionId,
+    quantity,
+  });
 };
