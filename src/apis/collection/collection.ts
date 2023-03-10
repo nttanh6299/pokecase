@@ -1,6 +1,5 @@
 import { fetchApi } from "@/apis/apiCaller";
 import { Item } from "@/apis/item";
-import { ApiResponse } from "@/types";
 
 export interface Collection {
   id: string;
@@ -21,7 +20,7 @@ export interface CollectionDetail extends Collection {
 }
 
 export const getCollections = async () => {
-  return fetchApi<ApiResponse<Collection[]>>("/collections", "GET");
+  return fetchApi<Utils.ApiResponse<Collection[]>>("/collections", "GET");
 };
 
 export const getCollection = (collectionId: string) => {

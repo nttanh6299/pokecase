@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/router";
-import { Nullable } from "@/types";
 
 interface UrlFilter {
   slug: string;
@@ -8,10 +7,10 @@ interface UrlFilter {
 }
 
 type State = {
-  filters: Nullable<UrlFilter[]>;
-  keyword?: Nullable<string>;
-  sortBy?: Nullable<string>;
-  sortDirection?: Nullable<string>;
+  filters: Utils.Nullable<UrlFilter[]>;
+  keyword?: Utils.Nullable<string>;
+  sortBy?: Utils.Nullable<string>;
+  sortDirection?: Utils.Nullable<string>;
 };
 
 type GetValueOptions<T> = {
@@ -107,8 +106,8 @@ const parseQueryString = (newState: State) => {
   const query = new URLSearchParams(window.location.search);
   const setQuery = <T>(
     key: string,
-    serialize: (value: T) => Nullable<string>,
-    value: Nullable<T> | undefined
+    serialize: (value: T) => Utils.Nullable<string>,
+    value: Utils.Nullable<T> | undefined
   ) => {
     if (value === null || value === undefined) {
       query.delete(key);

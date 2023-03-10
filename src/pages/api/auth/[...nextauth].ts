@@ -1,13 +1,13 @@
-import NextAuth from 'next-auth'
-import type { NextAuthOptions } from 'next-auth'
-import GoogleProvider from 'next-auth/providers/google'
-import FacebookProvider from 'next-auth/providers/facebook'
-import GitHubProvider from 'next-auth/providers/github'
-import { ReqUser, signIn } from '@/apis/auth'
+import NextAuth from "next-auth";
+import type { NextAuthOptions } from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
+import FacebookProvider from "next-auth/providers/facebook";
+import GitHubProvider from "next-auth/providers/github";
+import { ReqUser, signIn } from "@/apis/auth";
 
 export const nextAuthOptions: NextAuthOptions = {
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
   },
   jwt: {
     maxAge: 365 * 24 * 60 * 60 * 1000,
@@ -30,36 +30,31 @@ export const nextAuthOptions: NextAuthOptions = {
     async signIn({ user, account }) {
       try {
         const loggedUser: ReqUser = {
-          name: user.name,
-          email: user.email || '',
-          image: user.image,
           provider: account.provider,
-          providerAccountId: account.providerAccountId,
-        }
-        const { data } = await signIn(loggedUser)
-        user.id = data?.user?.id
+          accessToken: account.access_token,
+          idToken: account.id_token,
+        };
+        const { data } = await signIn(loggedUser);
         if (data?.accessToken) {
-          user.accessToken = data.accessToken
+          user.accessToken = data.accessToken;
         }
-        return true
+        return true;
       } catch (_) {
-        return false
+        return false;
       }
     },
     async jwt({ token, user }) {
       if (user) {
-        token.accessToken = user.accessToken
-        token.id = user.id
+        token.accessToken = user.accessToken;
       }
-      return token
+      return token;
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken
-      session.id = token.id
-      delete session.user
-      return session
+      session.accessToken = token.accessToken;
+      delete session.user;
+      return session;
     },
   },
-}
+};
 
-export default NextAuth(nextAuthOptions)
+export default NextAuth(nextAuthOptions);

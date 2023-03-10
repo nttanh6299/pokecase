@@ -1,5 +1,4 @@
 import { fetchApi } from "../apiCaller";
-import { ApiResponse } from "@/types";
 
 export interface Item {
   id: string;
@@ -24,5 +23,5 @@ export interface ItemParams {
 }
 
 export const getItems = async (params: ItemParams) => {
-  return fetchApi<ApiResponse<Item[]>>("/items", "GET", null, params);
+  return fetchApi<Utils.ApiResponse<Item[]>>("/items", "GET", null, params);
 };

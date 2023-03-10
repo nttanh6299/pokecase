@@ -15,3 +15,5 @@ export interface ApiResponse<T> {
 }
 
 export type Nullable<T> = T | null;
+
+export as namespace Utils;
