@@ -4,16 +4,20 @@ interface ItemProps {
   image: string;
   itemClass: string;
   displayName: string;
+  cost: number;
   index: number | string;
   isSpinItem?: boolean;
+  showCost?: boolean;
 }
 
 const Item = ({
   image,
   itemClass,
   displayName,
+  cost,
   index,
   isSpinItem,
+  showCost,
 }: ItemProps) => {
   return (
     <div className={styles.pokemon}>
@@ -25,7 +29,7 @@ const Item = ({
         />
       </div>
       <div className={`${styles.text} ${styles[itemClass] || styles.default}`}>
-        {displayName} {index}
+        {displayName} {index} {showCost ? `($${cost})` : ''}
       </div>
     </div>
   );

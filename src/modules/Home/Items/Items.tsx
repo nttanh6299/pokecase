@@ -249,6 +249,7 @@ function Items({
           key={item.id}
           image={item.image}
           displayName={item.displayName}
+          cost={item.cost}
           itemClass={item.class}
           index={index}
         />
@@ -262,6 +263,7 @@ function Items({
                   key={index}
                   image={item.image}
                   displayName={item.displayName}
+                  cost={item.cost}
                   itemClass={item.class}
                   index={index}
                   isSpinItem

@@ -133,8 +133,10 @@ const Inventory = () => {
             key={index}
             image={item.image}
             displayName={item.displayName}
+            cost={item.cost}
             itemClass={item.class}
             index={index}
+            showCost
           />
         ))}
       </div>
