@@ -11,6 +11,17 @@ export interface Item {
   chance: number;
 }
 
-export const getItems = async () => {
-  return fetchApi<ApiResponse<Item[]>>("/items", "GET");
+export interface ItemParams {
+  search?: string;
+  sort: {
+    direction: string;
+    type: string;
+  };
+  filters: {
+    classes?: string[];
+  };
+}
+
+export const getItems = async (params: ItemParams) => {
+  return fetchApi<ApiResponse<Item[]>>("/items", "GET", null, params);
 };

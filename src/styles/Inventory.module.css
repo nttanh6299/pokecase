@@ -1,0 +1,7 @@
+.item {
+  padding: 8px;
+}
+
+.item + .item {
+  margin-left: 4px;
+}

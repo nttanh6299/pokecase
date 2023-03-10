@@ -6,6 +6,7 @@ import { Item } from "@/apis/item";
 import useAuth from "@/hooks/useAuth";
 import { sellItem } from "@/apis/user";
 import { round } from "@/utils";
+import ItemComponent from "@/components/Item";
 
 const generateSpinItems = (items: Item[]): Item[] => {
   let spinItems: Item[] = [];
@@ -133,7 +134,6 @@ function Items({
       const { dropped, sellId, xp } = data ?? {};
 
       if (dropped) {
-        setUser((prev) => ({ ...prev, xp: prev.xp + xp }));
         updateQuantityCollection(-1);
         sellIdRef.current = sellId;
       }
@@ -159,6 +159,7 @@ function Items({
             x.set(0);
             setSelectedPokemon(dropped);
             setSpinning(false);
+            setUser((prev) => ({ ...prev, xp: prev.xp + xp }));
           }, 8500);
         },
       });
@@ -244,34 +245,27 @@ function Items({
         )}
       </div>
       {items.map((item, index) => (
-        <div key={item.id} className={styles.pokemon}>
-          <div className={styles.image}>
-            <img src={item.image} width="110px" height="100px" />
-          </div>
-          <div
-            className={`${styles.text} ${styles[item.class] || styles.default}`}
-          >
-            {item.displayName} {index}
-          </div>
-        </div>
+        <ItemComponent
+          key={item.id}
+          image={item.image}
+          displayName={item.displayName}
+          itemClass={item.class}
+          index={index}
+        />
       ))}
       <div className={styles.list}>
         {spinning && (
           <div className={styles.holder}>
             <motion.div style={{ x, willChange }} className={styles.roller}>
               {spinItems.map((item, index) => (
-                <div key={index} className={styles.pokemon}>
-                  <div className={styles.image}>
-                    <img src={item.image} width="180px" height="150px" />
-                  </div>
-                  <div
-                    className={`${styles.text} ${
-                      styles[item.class] || styles.default
-                    }`}
-                  >
-                    {item.displayName} {index}
-                  </div>
-                </div>
+                <ItemComponent
+                  key={index}
+                  image={item.image}
+                  displayName={item.displayName}
+                  itemClass={item.class}
+                  index={index}
+                  isSpinItem
+                />
               ))}
             </motion.div>
           </div>

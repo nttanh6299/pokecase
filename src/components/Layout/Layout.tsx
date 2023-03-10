@@ -64,7 +64,7 @@ const Layout = ({ children }: PropsWithChildren<unknown>) => {
             <div>${user?.coin}</div>
             <div>Xp: {user?.xp}</div>
             <div>
-              <Link href="/inventory" prefetch>
+              <Link href="/inventory">
                 Inventory
               </Link>
             </div>
