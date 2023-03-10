@@ -4,7 +4,7 @@ import { animate, motion, useMotionValue, useWillChange } from "framer-motion";
 import { buyCollection, Collection, openCollection } from "@/apis/collection";
 import { Item } from "@/apis/item";
 import useAuth from "@/hooks/useAuth";
-import { sellItem } from "@/apis/user";
+import { sellItems } from "@/apis/user";
 import { round } from "@/utils";
 import ItemComponent from "@/components/Item";
 
@@ -68,7 +68,7 @@ function Items({
   const handleSell = async () => {
     try {
       setSelling(true);
-      const { data } = await sellItem(sellIdRef.current);
+      const { data } = await sellItems([sellIdRef.current]);
 
       if (data > 0) {
         setUser((prev) => ({ ...prev, coin: round(prev.coin + data) }));

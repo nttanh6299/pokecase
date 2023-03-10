@@ -67,6 +67,7 @@
 }
 
 .pokemon {
+  position: relative;
   display: inline-block;
   background-color: #eef;
 }
@@ -83,8 +84,8 @@
 
 .text {
   font-weight: 600;
-  font-size: 14px;
-  padding: 8px;
+  font-size: 12px;
+  padding: 4px;
   color: #fff;
 }
 

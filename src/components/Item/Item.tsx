@@ -24,8 +24,10 @@ const Item = ({
       <div className={styles.image}>
         <img
           src={image}
-          width={isSpinItem ? "180px" : "110px"}
-          height={isSpinItem ? "150px" : "100px"}
+          width={isSpinItem ? "180px" : "140px"}
+          height={isSpinItem ? "150px" : "110px"}
+          style={{ objectFit: 'contain' }}
+          alt={displayName}
         />
       </div>
       <div className={`${styles.text} ${styles[itemClass] || styles.default}`}>

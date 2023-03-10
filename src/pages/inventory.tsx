@@ -1,11 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import withAuth from "@/components/withAuth";
 import { getItems, Item } from "@/apis/item";
 import { ITEM_CLASSES, SORT_OPTIONS } from "@/constants/common";
 import styles from "@/styles/Inventory.module.css";
-import ItemComponent from "@/components/Item";
 import useFilter, { allOption } from "@/hooks/useFilter";
 import SearchInput from "@/modules/Inventory/SearchInput";
+import SelectableItem from "@/modules/Inventory/SelectableItem";
+import { round } from "@/utils";
+import { sellItems } from "@/apis/user";
+import useAuth from "@/hooks/useAuth";
 
 enum FilterName {
   Classes = "classes",
@@ -33,7 +36,15 @@ const Inventory = () => {
     clearAllFilters,
   } = useFilter();
 
-  useEffect(() => {
+  const { setUser } = useAuth();
+
+  const [error, setError] = useState("");
+  const [selling, setSelling] = useState(false);
+  const [selectable, setSelectable] = useState(false);
+  const [selectedItemIds, setSelectedItemIds] =
+    useState<Record<string, number>>();
+
+  const fetchItems = useCallback(async () => {
     const filterParams: Parameters<typeof getItems>[0] = {
       search: keyword?.trim() || undefined,
       sort: {
@@ -48,14 +59,57 @@ const Inventory = () => {
         {}
       ),
     };
-
-    const fetchItems = async () => {
-      const { data } = await getItems(filterParams);
-      setItems(data.data || []);
-    };
-
-    fetchItems();
+    const { data } = await getItems(filterParams);
+    const fetchedItems = data.data || [];
+    setItems(fetchedItems);
   }, [filters, sortBy, sortDirection, keyword]);
+
+  useEffect(() => {
+    fetchItems();
+  }, [fetchItems]);
+
+  const handleSelectItem = (sellId: string, cost: number) => {
+    const selected = { ...selectedItemIds };
+
+    if (selected?.[sellId]) {
+      delete selected[sellId];
+      setSelectedItemIds(selected);
+      return;
+    }
+
+    setSelectedItemIds({ ...selected, [sellId]: cost });
+  };
+
+  const handleClearSelectItem = () => {
+    setSelectedItemIds({});
+  };
+
+  const handleExchange = async () => {
+    try {
+      setSelling(true);
+
+      const ids = Object.keys(selectedItemIds);
+      const { data } = await sellItems(ids);
+
+      if (data > 0) {
+        setUser((prev) => ({ ...prev, coin: round(prev.coin + data) }));
+        setSelectedItemIds({});
+        fetchItems();
+      }
+    } catch (error) {
+      console.log("error", error);
+
+      // Noted
+      setError(error.data?.type);
+    } finally {
+      setSelling(false);
+    }
+  };
+
+  const canExchange = Object.keys(selectedItemIds ?? {}).length > 0;
+  const totalCost = round(
+    Object.values(selectedItemIds ?? {}).reduce((acc, cost) => acc + cost, 0)
+  );
 
   return (
     <div>
@@ -126,10 +180,35 @@ const Inventory = () => {
           );
         })}
       </div>
-
-      <div>
+      <div style={{ display: "flex" }}>
+        <label htmlFor="selectable">
+          <input
+            type="checkbox"
+            id="selectable"
+            checked={selectable}
+            onChange={(e) => setSelectable(e.target.checked)}
+          />
+          Select
+        </label>
+        {canExchange && (
+          <>
+            <div style={{ marginLeft: "8px" }}>
+              <button onClick={handleClearSelectItem} disabled={selling}>
+                Clear all
+              </button>
+            </div>
+            <div style={{ marginLeft: "8px" }}>
+              <button onClick={handleExchange} disabled={selling}>
+                Exchange for {totalCost} coins
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+      {error && <div style={{ color: "var(--mythical)" }}>{error}</div>}
+      <div style={{ display: "flex", flexWrap: "wrap" }}>
         {items?.map((item, index) => (
-          <ItemComponent
+          <SelectableItem
             key={index}
             image={item.image}
             displayName={item.displayName}
@@ -137,6 +216,10 @@ const Inventory = () => {
             itemClass={item.class}
             index={index}
             showCost
+            canSelect={selectable}
+            sellId={item.sellId}
+            onSelect={handleSelectItem}
+            isSelected={!!selectedItemIds?.[item.sellId]}
           />
         ))}
       </div>

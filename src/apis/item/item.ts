@@ -9,6 +9,7 @@ export interface Item {
   class: string;
   cost: number;
   chance: number;
+  sellId?: string
 }
 
 export interface ItemParams {
