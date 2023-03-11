@@ -34,7 +34,10 @@ const Inventory = () => {
     checkFilterChecked,
     hasFilterValues,
     clearAllFilters,
-  } = useFilter();
+  } = useFilter({
+    defaultSortBy: "cost",
+    defaultSortDirection: SortDirection.Desc,
+  });
 
   const { setUser } = useAuth();
 
