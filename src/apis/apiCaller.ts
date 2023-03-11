@@ -1,6 +1,6 @@
 import axios, { AxiosPromise, CancelToken, Method } from "axios";
 import { API_ENDPOINT } from "@/constants/common";
-import { getAccessToken } from "@/utils";
+import { clearAccessToken, getAccessToken } from "@/utils";
 
 const instanceNext = axios.create({
   baseURL: API_ENDPOINT,
@@ -31,7 +31,7 @@ instanceNext.interceptors.response.use(
       (error.response && error.response.status === 401) ||
       (error.response && error.response.status === 403)
     ) {
-      // clearAccessToken();
+      clearAccessToken();
       // toast.error("Session is expired!", { toastId: "unauthorized" });
       // Router.push(PAGE_PATHS.LOGIN);
     }
